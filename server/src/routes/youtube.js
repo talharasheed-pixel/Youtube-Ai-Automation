@@ -12,8 +12,8 @@ router.get('/auth-url', (req, res) => {
   }
 });
 
-// OAuth callback
-router.get('/callback', async (req, res) => {
+// OAuth callback (supports both /callback and /oauth2callback)
+router.get(['/callback', '/oauth2callback'], async (req, res) => {
   try {
     const { code } = req.query;
     if (!code) return res.status(400).json({ error: 'Authorization code missing' });
