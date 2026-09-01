@@ -68,6 +68,8 @@ router.get('/system-status', (req, res) => {
     uptime: process.uptime(),
     memory: process.memoryUsage(),
   });
+});
+
 // Get YouTube Credentials
 router.get('/youtube-credentials', (req, res) => {
   const db = getDb();
