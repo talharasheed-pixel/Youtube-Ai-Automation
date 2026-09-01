@@ -2,12 +2,10 @@ const { app, BrowserWindow, Tray, Menu, Notification, nativeImage, shell, dialog
 const path = require('path');
 
 // ═══════════════════════════════════════════════════════════════
-// CONFIGURATION — Change this to your cloud backend URL when deployed
-// For local development: http://localhost:5173
-// For 24/7 cloud (Render/Railway): https://your-app-name.onrender.com
+// CONFIGURATION — Live 24/7 Cloud Backend on Render
 // ═══════════════════════════════════════════════════════════════
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:5173';
-const API_URL = process.env.API_URL || 'http://localhost:3001';
+const BACKEND_URL = process.env.BACKEND_URL || 'https://youtube-ai-automation-h7wx.onrender.com';
+const API_URL = process.env.API_URL || 'https://youtube-ai-automation-h7wx.onrender.com';
 
 let mainWindow = null;
 let tray = null;

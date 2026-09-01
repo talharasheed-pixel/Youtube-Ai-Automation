@@ -68,6 +68,58 @@ router.get('/system-status', (req, res) => {
     uptime: process.uptime(),
     memory: process.memoryUsage(),
   });
+// Get YouTube Credentials
+router.get('/youtube-credentials', (req, res) => {
+  const db = getDb();
+  try {
+    const row = db.prepare("SELECT * FROM system_settings WHERE key = 'youtube_oauth'").get();
+    if (row && row.value) {
+      const data = JSON.parse(row.value);
+      return res.json({
+        clientId: data.clientId || '',
+        hasSecret: Boolean(data.clientSecret),
+        redirectUri: data.redirectUri || '',
+      });
+    }
+  } catch (e) {}
+
+  res.json({
+    clientId: process.env.GOOGLE_CLIENT_ID || process.env.YOUTUBE_CLIENT_ID || '',
+    hasSecret: Boolean(process.env.GOOGLE_CLIENT_SECRET || process.env.YOUTUBE_CLIENT_SECRET),
+    redirectUri: process.env.GOOGLE_REDIRECT_URI || process.env.YOUTUBE_REDIRECT_URI || 'https://youtube-ai-automation-h7wx.onrender.com/api/youtube/callback',
+  });
+});
+
+// Save YouTube Credentials
+router.post('/youtube-credentials', (req, res) => {
+  const { clientId, clientSecret, redirectUri } = req.body;
+  if (!clientId || !clientSecret) {
+    return res.status(400).json({ error: 'Client ID and Client Secret are required' });
+  }
+
+  const db = getDb();
+  try {
+    db.exec("CREATE TABLE IF NOT EXISTS system_settings (key TEXT PRIMARY KEY, value TEXT, updated_at TEXT);");
+    const value = JSON.stringify({ clientId, clientSecret, redirectUri });
+    db.prepare(`
+      INSERT INTO system_settings (key, value, updated_at) VALUES ('youtube_oauth', ?, datetime('now'))
+      ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = datetime('now')
+    `).run(value);
+
+    // Update in process.env so YouTubeService picks it up immediately
+    process.env.GOOGLE_CLIENT_ID = clientId;
+    process.env.GOOGLE_CLIENT_SECRET = clientSecret;
+    process.env.GOOGLE_REDIRECT_URI = redirectUri || 'https://youtube-ai-automation-h7wx.onrender.com/api/youtube/callback';
+
+    const ytService = req.app.get('youtubeService');
+    if (ytService) {
+      ytService.oauth2Client = null; // force reload with new credentials
+    }
+
+    res.json({ message: 'YouTube credentials saved successfully!' });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 module.exports = router;

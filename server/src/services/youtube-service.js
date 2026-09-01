@@ -12,22 +12,46 @@ const fs = require('fs');
 class YouTubeService {
   constructor() {
     this.oauth2Client = null;
-    if (config.youtube.clientId) {
-      this.oauth2Client = new google.auth.OAuth2(
-        config.youtube.clientId,
-        config.youtube.clientSecret,
-        config.youtube.redirectUri
-      );
+  }
+
+  getClient() {
+    let clientId = process.env.GOOGLE_CLIENT_ID || process.env.YOUTUBE_CLIENT_ID || config.youtube.clientId;
+    let clientSecret = process.env.GOOGLE_CLIENT_SECRET || process.env.YOUTUBE_CLIENT_SECRET || config.youtube.clientSecret;
+    let redirectUri = process.env.GOOGLE_REDIRECT_URI || process.env.YOUTUBE_REDIRECT_URI || config.youtube.redirectUri || 'https://youtube-ai-automation-h7wx.onrender.com/api/youtube/callback';
+
+    if (!clientId || !clientSecret) {
+      try {
+        const db = getDb();
+        const row = db.prepare("SELECT * FROM system_settings WHERE key = 'youtube_oauth'").get();
+        if (row && row.value) {
+          const parsed = JSON.parse(row.value);
+          clientId = parsed.clientId || clientId;
+          clientSecret = parsed.clientSecret || clientSecret;
+          redirectUri = parsed.redirectUri || redirectUri;
+        }
+      } catch (e) {}
     }
+
+    if (!clientId || !clientSecret) {
+      return null;
+    }
+
+    if (!this.oauth2Client) {
+      this.oauth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUri);
+    }
+    return this.oauth2Client;
   }
 
   /**
    * Generate authorization URL for YouTube OAuth
    */
   getAuthUrl() {
-    if (!this.oauth2Client) throw new Error('YouTube OAuth not configured. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET.');
+    const client = this.getClient();
+    if (!client) {
+      throw new Error('YouTube OAuth not configured. Set GOOGLE_CLIENT_ID (or YOUTUBE_CLIENT_ID) and GOOGLE_CLIENT_SECRET (or YOUTUBE_CLIENT_SECRET) in Render Environment.');
+    }
 
-    return this.oauth2Client.generateAuthUrl({
+    return client.generateAuthUrl({
       access_type: 'offline',
       scope: [
         'https://www.googleapis.com/auth/youtube.upload',

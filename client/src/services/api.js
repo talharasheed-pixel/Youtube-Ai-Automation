@@ -48,6 +48,8 @@ export const api = {
   getInsights: () => request('/settings/analytics/insights'),
   getAuditLogs: () => request('/settings/audit-logs'),
   getSystemStatus: () => request('/settings/system-status'),
+  getYouTubeCredentials: () => request('/settings/youtube-credentials'),
+  saveYouTubeCredentials: (data) => request('/settings/youtube-credentials', { method: 'POST', body: JSON.stringify(data) }),
 
   // Health
   health: () => request('/health'),

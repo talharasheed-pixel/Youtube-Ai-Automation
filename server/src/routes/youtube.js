@@ -22,9 +22,15 @@ router.get('/callback', async (req, res) => {
     const result = await ytService.handleCallback(code, 'default');
 
     // Redirect back to dashboard
-    res.redirect(`http://localhost:5173/settings?youtube=connected&channel=${encodeURIComponent(result.channelName)}`);
+    const host = req.get('host');
+    const protocol = req.protocol === 'https' || req.get('x-forwarded-proto') === 'https' ? 'https' : 'http';
+    const baseUrl = process.env.RENDER_EXTERNAL_URL || `${protocol}://${host}`;
+    res.redirect(`${baseUrl}/settings?youtube=connected&channel=${encodeURIComponent(result.channelName)}`);
   } catch (error) {
-    res.redirect(`http://localhost:5173/settings?youtube=error&message=${encodeURIComponent(error.message)}`);
+    const host = req.get('host');
+    const protocol = req.protocol === 'https' || req.get('x-forwarded-proto') === 'https' ? 'https' : 'http';
+    const baseUrl = process.env.RENDER_EXTERNAL_URL || `${protocol}://${host}`;
+    res.redirect(`${baseUrl}/settings?youtube=error&message=${encodeURIComponent(error.message)}`);
   }
 });
 

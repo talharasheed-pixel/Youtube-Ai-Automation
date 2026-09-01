@@ -37,6 +37,41 @@ export default function Settings() {
     loadData();
   }, []);
 
+  const [ytClientId, setYtClientId] = useState('');
+  const [ytClientSecret, setYtClientSecret] = useState('');
+  const [showConfig, setShowConfig] = useState(false);
+  const [savingCreds, setSavingCreds] = useState(false);
+
+  const redirectUri = window.location.origin + '/api/youtube/callback';
+
+  useEffect(() => {
+    api.getYouTubeCredentials().then((data) => {
+      if (data?.clientId) setYtClientId(data.clientId);
+    }).catch(() => {});
+  }, []);
+
+  const handleSaveCredentials = async (e) => {
+    e.preventDefault();
+    if (!ytClientId || !ytClientSecret) {
+      addToast({ type: 'error', message: 'Please enter both Client ID and Client Secret' });
+      return;
+    }
+    setSavingCreds(true);
+    try {
+      await api.saveYouTubeCredentials({
+        clientId: ytClientId.trim(),
+        clientSecret: ytClientSecret.trim(),
+        redirectUri: redirectUri,
+      });
+      addToast({ type: 'success', message: 'Credentials saved! Now click Connect to authenticate.' });
+      setShowConfig(false);
+    } catch (err) {
+      addToast({ type: 'error', message: err.message || 'Failed to save credentials' });
+    } finally {
+      setSavingCreds(false);
+    }
+  };
+
   const handleConnectYouTube = async () => {
     try {
       const { url } = await api.getYouTubeAuthUrl();
@@ -44,7 +79,8 @@ export default function Settings() {
         window.location.href = url;
       }
     } catch (err) {
-      addToast({ type: 'error', message: err.message || 'YouTube OAuth configuration missing' });
+      setShowConfig(true);
+      addToast({ type: 'warning', message: 'Configure your Google Client ID & Secret below, then click Connect.' });
     }
   };
 
@@ -90,9 +126,59 @@ export default function Settings() {
               </div>
             ) : null}
 
-            <button className="btn btn-primary w-full" onClick={handleConnectYouTube}>
-              🔗 {channels.length > 0 ? 'Connect Another YouTube Channel' : 'Connect YouTube Channel (OAuth2)'}
-            </button>
+            <div className="flex gap-sm" style={{ marginBottom: '16px' }}>
+              <button className="btn btn-primary flex-1" onClick={handleConnectYouTube}>
+                🔗 {channels.length > 0 ? 'Connect Another Channel' : 'Connect YouTube Channel (OAuth2)'}
+              </button>
+              <button className="btn btn-secondary" onClick={() => setShowConfig(!showConfig)} title="Configure Credentials">
+                ⚙️ {showConfig ? 'Hide Config' : 'Configure Keys'}
+              </button>
+            </div>
+
+            {/* In-App Credentials Form */}
+            {showConfig && (
+              <form onSubmit={handleSaveCredentials} style={{ background: '#080810', padding: '16px', borderRadius: '8px', border: '1px solid var(--border-primary)', marginTop: '12px' }}>
+                <h4 style={{ fontSize: '13px', fontWeight: 'bold', marginBottom: '8px', color: '#60a5fa' }}>
+                  🔑 Google Cloud OAuth Credentials
+                </h4>
+                
+                <div style={{ marginBottom: '12px' }}>
+                  <label style={{ display: 'block', fontSize: '11px', color: 'var(--text-tertiary)', marginBottom: '4px' }}>Client ID</label>
+                  <input
+                    type="text"
+                    value={ytClientId}
+                    onChange={(e) => setYtClientId(e.target.value)}
+                    placeholder="xxxx.apps.googleusercontent.com"
+                    style={{ width: '100%', padding: '8px', borderRadius: '4px', background: '#111827', border: '1px solid #374151', color: '#fff', fontSize: '12px' }}
+                  />
+                </div>
+
+                <div style={{ marginBottom: '12px' }}>
+                  <label style={{ display: 'block', fontSize: '11px', color: 'var(--text-tertiary)', marginBottom: '4px' }}>Client Secret</label>
+                  <input
+                    type="password"
+                    value={ytClientSecret}
+                    onChange={(e) => setYtClientSecret(e.target.value)}
+                    placeholder="GOCSPX-xxxx"
+                    style={{ width: '100%', padding: '8px', borderRadius: '4px', background: '#111827', border: '1px solid #374151', color: '#fff', fontSize: '12px' }}
+                  />
+                </div>
+
+                <div style={{ marginBottom: '12px' }}>
+                  <label style={{ display: 'block', fontSize: '11px', color: 'var(--text-tertiary)', marginBottom: '4px' }}>Authorized Redirect URI (Add in Google Console)</label>
+                  <input
+                    type="text"
+                    readOnly
+                    value={redirectUri}
+                    style={{ width: '100%', padding: '8px', borderRadius: '4px', background: '#1f2937', border: '1px solid #374151', color: '#9ca3af', fontSize: '11px' }}
+                  />
+                </div>
+
+                <button type="submit" className="btn btn-sm btn-primary w-full" disabled={savingCreds}>
+                  {savingCreds ? 'Saving...' : '💾 Save Credentials'}
+                </button>
+              </form>
+            )}
           </div>
 
           {/* System & Cost Guardrails */}

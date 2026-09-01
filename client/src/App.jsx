@@ -7,11 +7,15 @@ import Projects from './pages/Projects';
 import ProjectDetail from './pages/ProjectDetail';
 import Agents from './pages/Agents';
 import Settings from './pages/Settings';
+import LiveExecution from './pages/LiveExecution';
+import YouTubeStudioLive from './pages/YouTubeStudioLive';
 import Toasts from './components/Toasts';
 
 const NAV_ITEMS = [
   { path: '/', icon: '📊', label: 'Dashboard' },
   { path: '/projects', icon: '🎬', label: 'Projects' },
+  { path: '/execution', icon: '🟣', label: 'Live Execution' },
+  { path: '/studio-live', icon: '📺', label: 'YouTube Studio' },
   { path: '/agents', icon: '🤖', label: 'Agent Team' },
   { path: '/settings', icon: '⚙️', label: 'Settings' },
 ];
@@ -99,6 +103,8 @@ function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/projects" element={<Projects />} />
           <Route path="/projects/:id" element={<ProjectDetail />} />
+          <Route path="/execution" element={<LiveExecution />} />
+          <Route path="/studio-live" element={<YouTubeStudioLive />} />
           <Route path="/agents" element={<Agents />} />
           <Route path="/settings" element={<Settings />} />
         </Routes>
