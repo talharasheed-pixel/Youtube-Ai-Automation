@@ -115,19 +115,22 @@ async function start() {
   }
 
   // Start server
-  server.listen(config.port, () => {
+  const PORT = process.env.PORT || config.port || 3001;
+  const HOST = '0.0.0.0';
+  server.listen(PORT, HOST, () => {
     console.log(`\n${'═'.repeat(60)}`);
     console.log(`  🎬 AI YOUTUBE AUTOMATION OS`);
-    console.log(`  ⚡ Server running on http://localhost:${config.port}`);
-    console.log(`  📊 Dashboard: http://localhost:5173`);
-    console.log(`  🔌 API: http://localhost:${config.port}/api`);
+    console.log(`  ⚡ Server running on http://${HOST}:${PORT}`);
+    console.log(`  📊 Dashboard: Online & Serving Static Dist`);
+    console.log(`  🔌 API: http://${HOST}:${PORT}/api`);
     console.log(`  🧠 Agents: 10 specialized AI agents ready`);
-    console.log(`  📦 Database: SQLite (WAL mode)`);
+    console.log(`  📦 Database: SQLite (Zero-Config)`);
     console.log(`${'═'.repeat(60)}\n`);
   });
 }
 
 start().catch(err => {
-  console.error('❌ Failed to start:', err);
+  console.error('❌ Failed to start server:', err);
+  if (err.stack) console.error(err.stack);
   process.exit(1);
 });
