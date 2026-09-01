@@ -1,0 +1,53 @@
+{
+  "name": "ai-youtube-automation-os",
+  "version": "1.0.0",
+  "description": "AI YouTube Automation OS - Windows Desktop Control Panel",
+  "main": "main.js",
+  "author": "AI YouTube OS Team",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "build:win": "electron-builder --win --x64",
+    "build:portable": "electron-builder --win portable",
+    "pack": "electron-builder --dir"
+  },
+  "build": {
+    "appId": "com.aiyoutube.automationos",
+    "productName": "AI YouTube Automation OS",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "dir",
+          "arch": ["x64"]
+        }
+      ],
+      "signAndEditExecutable": false,
+      "sign": null
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "AI YouTube OS"
+    },
+    "portable": {
+      "artifactName": "AI-YouTube-OS-Portable.exe"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "offline.html"
+    ]
+  },
+  "dependencies": {
+    "electron-updater": "^6.3.9"
+  },
+  "devDependencies": {
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8"
+  }
+}

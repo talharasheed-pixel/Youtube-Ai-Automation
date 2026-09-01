@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI YouTube Automation OS — Offline</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', -apple-system, sans-serif;
+      background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #16213e 100%);
+      color: #e0e0e0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    .container { max-width: 520px; padding: 40px; }
+    .icon {
+      font-size: 72px;
+      margin-bottom: 24px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(1.05); }
+    }
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 16px;
+    }
+    p { font-size: 16px; color: #a0a0b0; line-height: 1.6; margin-bottom: 20px; }
+    .status-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .status-card h3 { color: #ffaa00; font-size: 14px; margin-bottom: 8px; }
+    .status-card ul { list-style: none; text-align: left; font-size: 14px; }
+    .status-card li { padding: 4px 0; color: #c0c0d0; }
+    .status-card li::before { content: "→ "; color: #667eea; }
+    button {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 16px;
+    }
+    button:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(102,126,234,0.3); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">🔌</div>
+    <h1>Backend Server Offline</h1>
+    <p>The AI YouTube Automation OS cloud backend is not reachable. This usually means the server needs to be started.</p>
+
+    <div class="status-card">
+      <h3>⚡ Quick Fix Options</h3>
+      <ul>
+        <li>Start the server: <code>npm run dev</code> in the project folder</li>
+        <li>Check if port 3001 is available</li>
+        <li>If using cloud hosting, verify deployment status</li>
+      </ul>
+    </div>
+
+    <button onclick="window.location.reload()">🔄 Retry Connection</button>
+  </div>
+</body>
+</html>

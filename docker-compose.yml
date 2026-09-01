@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  # -------------------------------------------------------------
+  # 1. Reverse Proxy & SSL Gateway
+  # -------------------------------------------------------------
+  gateway:
+    image: nginx:alpine
+    container_name: ai_youtube_os_gateway
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./media:/app/media
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - ai_youtube_network
+
+  # -------------------------------------------------------------
+  # 2. Web Application Frontend (Next.js / React)
+  # -------------------------------------------------------------
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: ai_youtube_os_frontend
+    restart: always
+    environment:
+      - VITE_API_URL=/api
+      - VITE_WS_URL=/
+    networks:
+      - ai_youtube_network
+
+  # -------------------------------------------------------------
+  # 3. Master Backend & 10-Agent Orchestrator
+  # -------------------------------------------------------------
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: ai_youtube_os_backend
+    restart: always
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - NODE_ENV=production
+      - JWT_SECRET=${JWT_SECRET:-ai-youtube-os-secure-jwt-key-2026}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
+      - STABILITY_API_KEY=${STABILITY_API_KEY}
+      - RUNWAY_API_KEY=${RUNWAY_API_KEY}
+      - YOUTUBE_CLIENT_ID=${YOUTUBE_CLIENT_ID}
+      - YOUTUBE_CLIENT_SECRET=${YOUTUBE_CLIENT_SECRET}
+      - YOUTUBE_REDIRECT_URI=${YOUTUBE_REDIRECT_URI}
+      - STORAGE_PATH=/app/media
+    volumes:
+      - ./server/data:/app/data
+      - ./media:/app/media
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    networks:
+      - ai_youtube_network
+
+networks:
+  ai_youtube_network:
+    driver: bridge

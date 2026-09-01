@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Environment variables
+.env
+.env.local
+
+# Build outputs
+client/dist/
+desktop/dist-electron/
+dist/
+
+# SQLite storage and generated media
+storage/*.sqlite
+storage/*.sqlite-wal
+storage/*.sqlite-shm
+server/storage/*.sqlite
+server/data/
+media/audio/*
+media/images/*
+media/video/*
+media/thumbnails/*
+media/renders/*
+!media/.gitkeep
+
+# System logs & OS files
+*.log
+.DS_Store
+Thumbs.db
