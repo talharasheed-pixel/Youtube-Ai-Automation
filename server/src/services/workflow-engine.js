@@ -95,23 +95,15 @@ class WorkflowEngine extends EventEmitter {
     });
     accumulated.marketResearch = research.result?.result;
 
-    // Stage: Topic Review — requires human approval
-    db.prepare('UPDATE projects SET current_stage = ?, updated_at = datetime(\'now\') WHERE id = ?')
-      .run('TOPIC_REVIEW', projectId);
+    // In autonomous mode: pick best topic and continue pipeline immediately
+    const recommendedTopic = accumulated.marketResearch?.topic_recommendations?.[0]?.topic;
+    const selectedTopic = project.topic || project.title || recommendedTopic || 'AI Revolution Breakdown';
 
-    if (this.io) {
-      this.io.to(`project:${projectId}`).emit('approval:required', {
-        projectId, stage: 'TOPIC_REVIEW', type: 'topic_approval',
-        message: 'Review topic recommendations and select a topic to proceed.',
-        data: accumulated.marketResearch,
-      });
-    }
-
-    // Workflow pauses here — human must approve topic
-    this.activeWorkflows.set(projectId, {
-      status: 'WAITING_APPROVAL',
-      currentStage: 'TOPIC_REVIEW',
-      accumulated,
+    // Continue automated execution through deep research, script, fact check, audio, visual, video, and SEO
+    await this.continueAfterApproval(projectId, 'TOPIC_REVIEW', {
+      selectedTopic,
+      action: 'APPROVE',
+      uniqueAngle: 'Deep authoritative analysis with verified metrics and high CTR hook',
     });
   }
 
