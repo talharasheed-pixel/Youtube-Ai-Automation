@@ -53,4 +53,11 @@ export const api = {
 
   // Health
   health: () => request('/health'),
+
+  // Browser Automation
+  getAutomationStatus: () => request('/automation/status'),
+  openStudioInBrowser: (channelUrl) => request('/automation/open-studio', { method: 'POST', body: JSON.stringify({ channelUrl }) }),
+  queueBrowserAction: (data) => request('/automation/action', { method: 'POST', body: JSON.stringify(data) }),
+  publishProjectInBrowser: (data) => request('/automation/publish-project', { method: 'POST', body: JSON.stringify(data) }),
+  confirmBrowserPublish: (confirmed = true) => request('/automation/confirm-publish', { method: 'POST', body: JSON.stringify({ confirmed }) }),
 };

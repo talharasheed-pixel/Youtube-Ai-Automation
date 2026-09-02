@@ -91,7 +91,20 @@ async function start() {
   const mediaPipeline = new MediaPipeline();
   const workflowEngine = new WorkflowEngine(managerAgent, io);
 
-  console.log('✅ Services initialized');
+  // Initialize Browser Automation Controller & Queue for YouTube Studio
+  const BrowserController = require('./src/automation/browser-controller');
+  const YouTubeStudioController = require('./src/automation/youtube-studio-controller');
+  const AgentBrowserTaskQueue = require('./src/automation/agent-task-queue');
+  const automationRoutes = require('./src/routes/automation');
+
+  const browserController = new BrowserController({ headless: false });
+  const studioController = new YouTubeStudioController(browserController);
+  const browserTaskQueue = new AgentBrowserTaskQueue(studioController, io);
+
+  // Mount automation API routes
+  app.use('/api/automation', automationRoutes(browserTaskQueue));
+
+  console.log('✅ Services & Browser Automation Controller initialized');
 
   // Store references on app for route access
   app.set('io', io);
@@ -102,6 +115,8 @@ async function start() {
   app.set('youtubeService', youtubeService);
   app.set('analyticsService', analyticsService);
   app.set('mediaPipeline', mediaPipeline);
+  app.set('browserTaskQueue', browserTaskQueue);
+  app.set('studioController', studioController);
   app.set('config', config);
 
   // Ensure default user exists
