@@ -17,6 +17,12 @@ function createSchema(db) {
       updated_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
+    CREATE TABLE IF NOT EXISTS system_settings (
+      key TEXT PRIMARY KEY,
+      value TEXT,
+      updated_at TEXT DEFAULT (datetime('now'))
+    );
+
     -- ============================================================
     -- CHANNELS (YouTube)
     -- ============================================================
